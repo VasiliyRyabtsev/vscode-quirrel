@@ -63,7 +63,7 @@
     },
 
     "class": {
-      "begin": "(?=class)",
+      "begin": "(?=\\bclass\\b)",
       "end": "(?<=\\})|(;)",
       "endCaptures": { "1": { "name": "punctuation.terminator.squirrel" } },
       "name": "meta.class.squirrel",
@@ -113,7 +113,7 @@
     },
 
     "enum": {
-      "begin": "(?=enum)",
+      "begin": "(?=\\benum\\b)",
       "end": "(?<=\\})|(;)",
       "endCaptures": { "1": { "name": "punctuation.terminator.squirrel" } },
       "name": "meta.enum.squirrel",
@@ -129,6 +129,15 @@
       "beginCaptures": { "1": { "name": "storage.type.class.squirrel" } },
       "end": "([_A-Za-z][\\w]*)",
       "endCaptures": { "1": { "name": "entity.name.type.class.squirrel" } },
+      "patterns": [
+        { "include": "#global" }
+      ]
+    },
+
+    "enum-name-post": {
+      "begin": "(?<=\\w)",
+      "end": "(\\{)",
+      "endCaptures": { "1": { "name": "punctuation.definition.block.begin.squirrel" } },
       "patterns": [
         { "include": "#global" }
       ]
@@ -268,7 +277,8 @@
           "begin": "(\\$\\\")",
           "beginCaptures": {
             "0": { "name": "string.quoted.double.squirrel" },
-            "1": { "name": "punctuation.definition.string.begin.squirrel" } },
+            "1": { "name": "punctuation.definition.string.begin.squirrel" }
+          },
           "end": "(\\\")",
           "endCaptures": {
             "0": { "name": "string.quoted.double.squirrel" },

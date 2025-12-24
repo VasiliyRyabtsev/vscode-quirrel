@@ -2,7 +2,7 @@ import * as vs from 'vscode';
 import syntaxDiags from './syntaxDiags';
 
 export default function clearDiagsOnClose(document: vs.TextDocument) {
-  if (document.languageId !== 'squirrel')
+  if (document.languageId !== 'quirrel')
     return;
 
   syntaxDiags.delete(document.uri);

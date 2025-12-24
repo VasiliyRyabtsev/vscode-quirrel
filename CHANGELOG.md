@@ -1,6 +1,24 @@
 # Change Log
 
 
+## 0.1.0
+
+- Major: Embedded Quirrel parser/compiler via WebAssembly
+  - Built-in syntax checking and static analysis (no external tools required)
+  - Document symbols (Outline view, Ctrl+Shift+O)
+  - Go to Declaration support
+- Forked from Squirrel extension - now Quirrel-only
+- Full support for modern Quirrel syntax (module imports, type annotations, etc.)
+
+## 0.0.9
+
+- Fixed syntax highlighting: make `class` and `enum` non-greedy
+
+## 0.0.8
+
+- More flexibility for external code analysis tool configuration
+- Security: bump path-parse and minimist dependencies
+
 ## 0.0.7
 
 - Intellisense feature of tables' key-value combinations for ui parameters

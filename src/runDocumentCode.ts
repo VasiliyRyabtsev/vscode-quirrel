@@ -46,7 +46,7 @@ export default function runDocumentCode() {
   dbgOutputChannel.show(true);
   dbgOutputChannel.appendLine(`Running file: ${srcPath}`);
 
-  const config = vs.workspace.getConfiguration('squirrel.codeRunner');
+  const config = vs.workspace.getConfiguration('quirrel.codeRunner');
   let toolPath: string = config.get('fileName') || '';
   toolPath = process.env[toolPath] || toolPath;
   let cmd: string = `${toolPath} ${srcPath}`;

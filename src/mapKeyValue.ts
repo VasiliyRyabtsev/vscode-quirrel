@@ -9,14 +9,14 @@ const mapKeyValue: KeyValueTable = {
   "halign": ["ALIGN_LEFT", "ALIGN_CENTER", "ALIGN_RIGHT"],
   "hplace": { alias: "halign" },
   "valign": ["ALIGN_TOP", "ALIGN_CENTER", "ALIGN_BOTTOM"],
-  "vplace": { alias: "halign" },
+  "vplace": { alias: "valign" },
   "size": ["SIZE_TO_CONTENT", "flex()"],
   "minWidth": ["hdpx()", "sw()", "pw()", "SIZE_TO_CONTENT"],
   "maxWidth": { alias: "minWidth" },
   "minHeight": ["hdpx()", "sh()", "ph()", "SIZE_TO_CONTENT"],
   "maxHeight": { alias: "minWidth" },
   "behavior": ["Behavior.Button", "Behavior.TextArea"], // TODO add delimiter and brackets to allow multiple choice
-  "color": "::Color()",
+  "color": "Color()",
   "pos": "[0, 0]",
   "watch": "[]",
 }

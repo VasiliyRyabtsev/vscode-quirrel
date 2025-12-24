@@ -1,60 +1,52 @@
 import * as vs from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as os from 'os';
-import { exec } from 'child_process';
 import syntaxDiags from './syntaxDiags';
-import { dbgOutputChannel } from './utils';
+import { isParserInitialized, analyzeCode, AnalysisResult } from './quirrelParser';
 
-type DiagnosticItem = {
-  line: number;
-  col: number;
-  len: number;
-  file: string;
-  intId: number;
-  textId: string;
-  message: string;
-  isError: boolean;
-}
-
-type DiagnosticResult = { messages: DiagnosticItem[]; }
-
-const DIAGNOSTIC_SOURCE = 'Static analysis';
 const ERRORCODE_UNUSED = [213, 221, 228];
 
 const versionControl: {[key: string]: number;} = {};
 
-function processDiagOutput(diagOutput: string | null, document: vs.TextDocument) {
-  if (diagOutput == null) {
-    syntaxDiags.delete(document.uri);
-    return;
-  }
-
-  const result: DiagnosticResult = JSON.parse(diagOutput);
-  const messages = result?.messages || [];
+function applyDiagnostics(document: vs.TextDocument, result: AnalysisResult) {
+  const messages = result.messages;
 
   const diagList: vs.Diagnostic[] = messages.map((msg) => {
-    const line = msg.line - 1;
-    const col = msg.col - 1;
-    const range = new vs.Range(line, col, line, col + msg.len);
+    const line = Math.max(0, msg.line - 1);
+    const col = Math.max(0, msg.col);
+    const len = Math.max(1, msg.len);
+    const range = new vs.Range(line, col, line, col + len);
     const severity = msg.isError
       ? vs.DiagnosticSeverity.Error
       : vs.DiagnosticSeverity.Warning;
-    const errorCode = msg.intId;
-    const diag = new vs.Diagnostic(range, msg.message, severity);
-    diag.code = [errorCode, msg.textId].join(':');
-    diag.source = DIAGNOSTIC_SOURCE;
-    if (ERRORCODE_UNUSED.indexOf(errorCode) >= 0)
+
+    // Clean up message - remove redundant "ERROR: " prefix if present
+    let message = msg.message;
+    if (msg.isError && message.startsWith('ERROR: ')) {
+      message = message.substring(7);
+    }
+
+    const diag = new vs.Diagnostic(range, message, severity);
+
+    // Handle missing/invalid error codes (parse errors have intId=-1, textId="")
+    const errorCode = msg.intId >= 0 ? msg.intId : undefined;
+    const textId = msg.textId || (msg.isError ? 'syntax-error' : 'warning');
+    diag.code = errorCode !== undefined ? `${errorCode}:${textId}` : textId;
+
+    if (errorCode !== undefined && ERRORCODE_UNUSED.indexOf(errorCode) >= 0)
       diag.tags = [vs.DiagnosticTag.Unnecessary];
     return diag;
   });
+
   syntaxDiags.set(document.uri, diagList);
+  return diagList.length;
 }
 
-
 export default function checkSyntaxOnSave(document: vs.TextDocument) {
-  if (document.languageId !== 'squirrel')
+  if (document.languageId !== 'quirrel')
     return;
+
+  if (!isParserInitialized()) {
+    return;
+  }
 
   const srcPath = document.uri.fsPath;
   const version = document.version;
@@ -62,57 +54,34 @@ export default function checkSyntaxOnSave(document: vs.TextDocument) {
     return;
   versionControl[srcPath] = version;
 
-  const codeAnalysisConfig = vs.workspace.getConfiguration('squirrel.codeAnalysis');
-  let analysisCommand: string = codeAnalysisConfig.get('command') || '';
-  analysisCommand = process.env[analysisCommand] || analysisCommand;
-  if (analysisCommand.trim() !== '') {
-    // use arbitrary source code analysis tool
-    const tempFilePath = path.join(os.tmpdir(), 'quirrel-diag.json');
-    analysisCommand = analysisCommand.replace(/\$SRC_FILE/g, srcPath);
-    analysisCommand = analysisCommand.replace(/\$DIAG_JSON/g, tempFilePath);
+  const result = analyzeCode(document.getText());
+  applyDiagnostics(document, result);
+}
 
-    fs.unlinkSync(tempFilePath);
-
-    dbgOutputChannel.appendLine("Executing: " + analysisCommand);
-
-    exec(analysisCommand, (error, stdout, stderr) => {
-      // Ignore return code, check only output file, since found errors are not a failure
-
-      fs.readFile(tempFilePath, 'utf8', (err, data) => {
-        if (err) {
-          dbgOutputChannel.appendLine("Error reading file: " + err.message);
-          // TODO diagnose file reading failure
-          processDiagOutput(null, document);
-        }
-        else {
-          processDiagOutput(data, document);
-        }
-      });
-    });
-
-    fs.unlinkSync(tempFilePath);
+export function checkSyntaxCommand() {
+  const editor = vs.window.activeTextEditor;
+  if (!editor) {
+    vs.window.showWarningMessage('No active editor');
+    return;
   }
-  else {
-    // use arbitrary legacy static analyser
-    const syntaxCheckerConfig = vs.workspace.getConfiguration('squirrel.syntaxChecker');
-    let toolPath: string = syntaxCheckerConfig.get('fileName') || '';
-    toolPath = process.env[toolPath] || toolPath;
-    let cmd: string = `${toolPath} --message-output-file: ${srcPath}`;
 
-    exec(cmd, (error, stdout, stderr) => {
-      let diagOutput:string|null = null;
+  const document = editor.document;
+  if (document.languageId !== 'quirrel') {
+    vs.window.showWarningMessage('Not a Quirrel file');
+    return;
+  }
 
-      if (stderr) {
-        // TODO diagnose analyzer execution failure
-      }
-      else if (error && !stdout) {
-        // TODO diagnose different errorlevels
-      }
-      else {
-        diagOutput = stdout;
-      }
+  if (!isParserInitialized()) {
+    vs.window.showErrorMessage('WASM parser not initialized');
+    return;
+  }
 
-      processDiagOutput(diagOutput, document);
-    });
+  const result = analyzeCode(document.getText());
+  const count = applyDiagnostics(document, result);
+
+  if (count === 0) {
+    vs.window.showInformationMessage('No issues found');
+  } else {
+    vs.window.showInformationMessage(`Found ${count} issue(s)`);
   }
 }

@@ -1,9 +1,9 @@
 {
-  "name": "vscode-s-quirrel",
-  "displayName": "(S)quirrel",
-  "description": "Squirrel and Quirrel language support",
-  "version": "0.0.9",
-  "publisher": "mepsoid",
+  "name": "vscode-quirrel",
+  "displayName": "Quirrel",
+  "description": "Quirrel language support",
+  "version": "0.1.0",
+  "publisher": "VasiliyRyabtsev",
   "icon": "acorn.png",
   "license": "MIT",
   "engines": {
@@ -13,7 +13,6 @@
     "Programming Languages"
   ],
   "keywords": [
-    "squirrel",
     "quirrel",
     "nut"
   ],
@@ -24,9 +23,16 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
+    "compile:wasm": "cd wasm && mkdir -p build && cd build && emcmake cmake .. && emmake make",
     "lint": "tslint -p ./",
     "watch": "tsc -watch -p ./"
   },
+  "files": [
+    "out/**/*.js",
+    "out/**/*.wasm",
+    "syntaxes/**/*",
+    "snippets/**/*"
+  ],
   "devDependencies": {
     "@types/node": "^10.17.19",
     "@types/vscode": "^1.43.0",
@@ -35,19 +41,9 @@
   },
   "contributes": {
     "configuration": {
-      "title": "(S)quirrel",
+      "title": "Quirrel",
       "properties": {
-        "squirrel.codeAnalysis.command": {
-          "type": "string",
-          "default": "csq-dev --static-analysis --message-output-file:$DIAG_JSON $SRC_FILE",
-          "markdownDescription": "Identifier of environment variable that contains a command line of code runner utility, or command line of a code runner utility. Parameters are: **DIAG_JSON** - name of a temporary file to write diagnostic results to, **SRC_FILE** - name of the file to process. If not empty, this overrides **squirrel.syntaxChecker.fileName**."
-        },
-        "squirrel.syntaxChecker.fileName": {
-          "type": "string",
-          "default": "sq3_static_analyzer-dev",
-          "markdownDescription": "Identifier of environment variable that contains full path to syntax checking utility, or full path to syntax checking utility, or executable file name that must be discoverable through system **PATH** variable. This is deprecated, use **Code Analysis** tool since it is more flexible."
-        },
-        "squirrel.codeRunner.fileName": {
+        "quirrel.codeRunner.fileName": {
           "type": "string",
           "default": "csq-dev",
           "markdownDescription": "Identifier of environment variable that contains full path to code runner utility, or full path to code runner utility, or executable file name that must be discoverable through system **PATH** variable."
@@ -56,17 +52,15 @@
     },
     "languages": [
       {
-        "id": "squirrel",
+        "id": "quirrel",
         "aliases": [
-          "squirrel",
-          "Squirrel",
           "quirrel",
           "Quirrel"
         ],
         "extensions": [
-          "nut"
+          ".nut"
         ],
-        "configuration": "./syntaxes/squirrel.language-configuration.json"
+        "configuration": "./syntaxes/quirrel.language-configuration.json"
       },
       {
         "id": "consolelog",
@@ -82,9 +76,9 @@
     ],
     "grammars": [
       {
-        "language": "squirrel",
-        "scopeName": "source.squirrel",
-        "path": "./syntaxes/squirrel.tmLanguage.json"
+        "language": "quirrel",
+        "scopeName": "source.quirrel",
+        "path": "./syntaxes/quirrel.tmLanguage.json"
       },
       {
         "language": "consolelog",
@@ -94,35 +88,34 @@
     ],
     "snippets": [
       {
-        "language": "squirrel",
-        "path": "./snippets/squirrel.json"
+        "language": "quirrel",
+        "path": "./snippets/quirrel.json"
       }
     ],
     "commands": [
       {
-        "command": "squirrel.editor.action.openModule",
-        "title": "Open module source in new tab"
+        "command": "quirrel.editor.action.openModule",
+        "title": "Quirrel: Open module source"
       },
       {
-        "command": "squirrel.editor.action.runCode",
-        "title": "Run code at active document"
+        "command": "quirrel.editor.action.runCode",
+        "title": "Quirrel: Run code"
+      },
+      {
+        "command": "quirrel.editor.action.checkSyntax",
+        "title": "Quirrel: Check syntax and analyze"
       }
     ],
     "keybindings": [
       {
-        "key": "f12",
-        "command": "squirrel.editor.action.openModule",
-        "when": "editorTextFocus && editorLangId == 'squirrel'"
-      },
-      {
         "key": "ctrl+f5",
-        "command": "squirrel.editor.action.runCode",
-        "when": "editorTextFocus && editorLangId == 'squirrel'"
+        "command": "quirrel.editor.action.runCode",
+        "when": "editorTextFocus && editorLangId == 'quirrel'"
       }
     ]
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mepsoid/vscode-s-quirrel.git"
+    "url": "https://github.com/VasiliyRyabtsev/vscode-quirrel.git"
   }
 }

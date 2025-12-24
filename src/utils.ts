@@ -75,4 +75,4 @@ export function truncatePath(path:string): string {
   return path.substr(0, PATH_MAX - length + last) + '…' + path.substr(last);
 }
 
-export const dbgOutputChannel = vs.window.createOutputChannel("Squirrel");
+export const dbgOutputChannel = vs.window.createOutputChannel("Quirrel");

@@ -202,11 +202,12 @@
     },
 
     "lambda-expression": {
+      "begin": "@(?=\\s*\\()",
+      "beginCaptures": { "0": { "name": "storage.type.function.lambda.quirrel" } },
+      "end": "(?=\\s*\\{)|(?=\\s*\\$)|(?<=\\))(?=\\s+[^:])",
       "patterns": [
-        {
-          "match": "@()",
-          "name": "storage.type.function.lambda.quirrel"
-        }
+        { "include": "#parameters" },
+        { "include": "#type-annotation" }
       ]
     },
 
@@ -832,9 +833,13 @@
       "beginCaptures": {
         "1": { "name": "punctuation.separator.type.quirrel" }
       },
-      "end": "(?=[,)=;{])",
+      "end": "(?=[,)=;{$])",
       "patterns": [
-        { "include": "#type-name" }
+        { "include": "#type-name" },
+        {
+          "match": "\\|",
+          "name": "keyword.operator.type.union.quirrel"
+        }
       ]
     },
 

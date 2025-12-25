@@ -1,0 +1,15 @@
+.git
+.gitignore
+.gitmodules
+.vscode
+.claude
+tsconfig.json
+tslint.json
+package-lock.json
+*.md
+src/**
+quirrel/**
+wasm/**
+out/wasm/**
+out/src/**
+tmp/**

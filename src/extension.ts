@@ -9,17 +9,12 @@ import clearDiagsOnClose from './clearDiagsOnClose';
 import { initParser } from './quirrelParser';
 import { QuirrelDocumentSymbolProvider } from './documentSymbolProvider';
 import { QuirrelDefinitionProvider } from './definitionProvider';
+import { QuirrelSemanticHighlighter } from './semanticHighlighter';
 import { dbgOutputChannel } from './utils';
 
 const DOCUMENT: vs.DocumentSelector = { language: 'quirrel', scheme: 'file' };
 
 export async function activate(context: vs.ExtensionContext) {
-  // Initialize WASM parser (non-blocking, symbols work after load)
-  initParser(context.extensionPath).catch(err => {
-    dbgOutputChannel.appendLine(`WASM parser initialization failed: ${err}`);
-    dbgOutputChannel.appendLine('Document symbols will not be available.');
-  });
-
   // Register document symbol provider
   const symbolProvider: vs.Disposable = vs.languages.registerDocumentSymbolProvider(
     DOCUMENT, new QuirrelDocumentSymbolProvider());
@@ -29,6 +24,20 @@ export async function activate(context: vs.ExtensionContext) {
   const definitionProvider: vs.Disposable = vs.languages.registerDefinitionProvider(
     DOCUMENT, new QuirrelDefinitionProvider());
   context.subscriptions.push(definitionProvider);
+
+  // Register semantic highlighter (decoration-based, theme-aware)
+  const semanticHighlighter = new QuirrelSemanticHighlighter();
+  context.subscriptions.push(semanticHighlighter);
+
+  // Initialize WASM parser (non-blocking, symbols work after load)
+  initParser(context.extensionPath).then(() => {
+    dbgOutputChannel.appendLine('WASM parser initialized successfully');
+    // Trigger semantic highlighting now that WASM is ready
+    semanticHighlighter.refresh();
+  }).catch(err => {
+    dbgOutputChannel.appendLine(`WASM parser initialization failed: ${err}`);
+    dbgOutputChannel.appendLine('Document symbols will not be available.');
+  });
   const completePath: vs.Disposable = vs.languages.registerCompletionItemProvider(
     DOCUMENT, new SubstitutePathByFile(), '"', '/', '\\');
   context.subscriptions.push(completePath);

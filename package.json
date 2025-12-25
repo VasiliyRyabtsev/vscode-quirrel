@@ -2,12 +2,12 @@
   "name": "vscode-quirrel",
   "displayName": "Quirrel",
   "description": "Quirrel language support",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "VasiliyRyabtsev",
   "icon": "acorn.png",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.43.0"
+    "vscode": "^1.45.0"
   },
   "categories": [
     "Programming Languages"
@@ -17,15 +17,15 @@
     "nut"
   ],
   "activationEvents": [
-    "*"
+    "onLanguage:quirrel"
   ],
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile": "npx tsc -p ./",
     "compile:wasm": "cd wasm && mkdir -p build && cd build && emcmake cmake .. && emmake make",
     "lint": "tslint -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "npx tsc -watch -p ./"
   },
   "files": [
     "out/**/*.js",
@@ -34,10 +34,9 @@
     "snippets/**/*"
   ],
   "devDependencies": {
-    "@types/node": "^10.17.19",
-    "@types/vscode": "^1.43.0",
-    "tslint": "^5.16.0",
-    "typescript": "^3.8.3"
+    "@types/node": "^14.0.0",
+    "@types/vscode": "^1.45.0",
+    "tslint": "^5.16.0"
   },
   "contributes": {
     "configuration": {
@@ -47,6 +46,19 @@
           "type": "string",
           "default": "csq-dev",
           "markdownDescription": "Identifier of environment variable that contains full path to code runner utility, or full path to code runner utility, or executable file name that must be discoverable through system **PATH** variable."
+        },
+        "quirrel.semanticHighlighting.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable semantic highlighting for local identifiers (variables, parameters, functions, imports). Each unique identifier gets a consistent color."
+        },
+        "quirrel.semanticHighlighting.colors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": null,
+          "markdownDescription": "Custom color palette for semantic highlighting. If not set, colors are auto-generated based on the current theme (light/dark). Example: `[\"#529D52\", \"#BE7070\", \"#3D7676\", \"#BE9970\", \"#9D527C\"]`"
         }
       }
     },

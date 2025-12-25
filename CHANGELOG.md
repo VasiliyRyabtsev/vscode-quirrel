@@ -1,6 +1,10 @@
 # Change Log
 
 
+## 0.2.0
+
+- KDevelop-style semantic highlighting
+
 ## 0.1.0
 
 - Major: Embedded Quirrel parser/compiler via WebAssembly

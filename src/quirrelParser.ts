@@ -47,10 +47,23 @@ export interface FindDeclarationResult {
     location?: DeclarationLocation;
 }
 
+export interface SemanticToken {
+    line: number;      // 1-based
+    col: number;       // 0-based
+    length: number;
+    type: number;      // Token type index
+    modifiers: number; // Modifier bitmask
+}
+
+export interface SemanticTokensResult {
+    tokens: SemanticToken[];
+}
+
 interface QuirrelWasmModule {
     parseAndExtractSymbols(source: string): string;
     analyzeCode(source: string): string;
     findDeclarationAt(source: string, line: number, col: number): string;
+    extractSemanticTokens(source: string): string;
 }
 
 let wasmModule: QuirrelWasmModule | null = null;
@@ -132,5 +145,18 @@ export function findDeclarationAt(source: string, line: number, col: number): Fi
         return JSON.parse(jsonResult) as FindDeclarationResult;
     } catch (e) {
         return { found: false };
+    }
+}
+
+export function extractSemanticTokens(source: string): SemanticTokensResult {
+    if (!wasmModule) {
+        return { tokens: [] };
+    }
+
+    try {
+        const jsonResult = wasmModule.extractSemanticTokens(source);
+        return JSON.parse(jsonResult) as SemanticTokensResult;
+    } catch (e) {
+        return { tokens: [] };
     }
 }

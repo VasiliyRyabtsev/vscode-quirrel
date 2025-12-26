@@ -9,7 +9,15 @@ add_subdirectory("${QUIRREL_DIR}/squirrel" "${PROJECT_BINARY_DIR}/squirrel")
 add_subdirectory("${QUIRREL_DIR}/squirrel/compiler" "${PROJECT_BINARY_DIR}/quirrel-compiler")
 
 # Create the WASM executable
-add_executable(quirrel-vscode native.cpp)
+add_executable(quirrel-vscode
+  native.cpp
+  extract_symbols.cpp
+  find_declaration.cpp
+  semantic_tokens.cpp
+  analyze.cpp
+  utils.cpp
+)
+
 target_link_libraries(quirrel-vscode squirrel quirrel-compiler)
 
 # Include paths for compiler internals (AST access)

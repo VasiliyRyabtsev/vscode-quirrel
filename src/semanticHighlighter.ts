@@ -203,7 +203,7 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
         }
 
         const result = extractSemanticTokens(editor.document.getText());
-        dbgOutputChannel.appendLine(`Semantic highlighter: got ${result.tokens?.length || 0} tokens`);
+        //dbgOutputChannel.appendLine(`Semantic highlighter: got ${result.tokens?.length || 0} tokens`);
 
         // Group ranges by identifier name -> color index
         // We need to get the actual identifier text from the document

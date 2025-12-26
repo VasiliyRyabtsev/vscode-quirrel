@@ -31,7 +31,7 @@ export async function activate(context: vs.ExtensionContext) {
 
   // Initialize WASM parser (non-blocking, symbols work after load)
   initParser(context.extensionPath).then(() => {
-    dbgOutputChannel.appendLine('WASM parser initialized successfully');
+    //dbgOutputChannel.appendLine('WASM parser initialized successfully');
     // Trigger semantic highlighting now that WASM is ready
     semanticHighlighter.refresh();
   }).catch(err => {

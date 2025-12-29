@@ -127,8 +127,7 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
         } else {
             // Auto-generate based on theme
             const themeKind = vs.window.activeColorTheme.kind;
-            // Light = 1, Dark = 2, HighContrast = 3 (dark by default)
-            this._isDarkTheme = themeKind !== vs.ColorThemeKind.Light;
+            this._isDarkTheme = (themeKind === vs.ColorThemeKind.Dark || themeKind === vs.ColorThemeKind.HighContrast);
             this._currentPalette = generatePalette(this._isDarkTheme, DEFAULT_PALETTE_SIZE);
         }
     }

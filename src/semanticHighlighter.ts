@@ -7,7 +7,7 @@ const TT_VARIABLE = 0;
 const TT_PARAMETER = 1;
 const TT_FUNCTION = 2;
 // const TT_CLASS = 3;
-// const TT_ENUM = 4;
+const TT_ENUM = 4;
 // const TT_ENUM_MEMBER = 5;
 // const TT_PROPERTY = 6;
 const TT_IMPORT = 7;
@@ -212,12 +212,12 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
 
         if (result.tokens) {
             for (const token of result.tokens) {
-                // Colorize variables, parameters, local functions, and imports
-                // Skip classes, enums, properties - let TextMate handle those
+                // Colorize variables/constants, parameters, local functions, enums, and imports
                 if (token.type !== TT_VARIABLE &&
                     token.type !== TT_PARAMETER &&
                     token.type !== TT_FUNCTION &&
-                    token.type !== TT_IMPORT) {
+                    token.type !== TT_IMPORT &&
+                    token.type !== TT_ENUM) {
                     continue;
                 }
 

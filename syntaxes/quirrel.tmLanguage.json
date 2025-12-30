@@ -247,14 +247,29 @@
     "lambda-expression": {
       "begin": "@(?=\\s*[\\[(]|\\s*[_A-Za-z])",
       "beginCaptures": { "0": { "name": "storage.type.function.lambda.quirrel" } },
-      "end": "(?=\\s*\\{)|(?=\\s*\\$)|(?<=\\))(?=\\s+[^:])",
+      "end": "(?=\\s*\\{)|(?=\\s*\\$)|(?<=\\))(?=\\s+[^:])|(?<=\\w)(?=\\s+[^|?\\s])",
       "patterns": [
         { "include": "#function-attributes" },
         { "include": "#parameters" },
-        { "include": "#type-annotation" },
+        { "include": "#lambda-return-type" },
         {
           "match": "\\b([_A-Za-z][\\w]*)\\b(?=\\s*\\()",
           "name": "entity.name.function.quirrel"
+        }
+      ]
+    },
+
+    "lambda-return-type": {
+      "begin": "(:)\\s*",
+      "beginCaptures": {
+        "1": { "name": "punctuation.separator.type.quirrel" }
+      },
+      "end": "(?=\\s+[^|?\\s])|(?=[{$])",
+      "patterns": [
+        { "include": "#type-name" },
+        {
+          "match": "\\|",
+          "name": "keyword.operator.type.union.quirrel"
         }
       ]
     },
@@ -871,7 +886,7 @@
       "beginCaptures": {
         "1": { "name": "punctuation.separator.type.quirrel" }
       },
-      "end": "(?=[,)=;{$])",
+      "end": "(?=[,)=;{$\\]])",
       "patterns": [
         { "include": "#type-name" },
         {

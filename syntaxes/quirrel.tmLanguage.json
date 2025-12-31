@@ -845,7 +845,7 @@
           "name": "keyword.operator.null-coalescing.quirrel"
         },
         {
-          "begin": "\\?",
+          "begin": "\\?(?![.\\[(])",
           "beginCaptures": { "0": { "name": "keyword.operator.ternary.quirrel" } },
           "end": ":",
           "endCaptures": { "0": { "name": "keyword.operator.ternary.quirrel" } },

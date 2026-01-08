@@ -43,6 +43,9 @@ std::string analyzeCode(const std::string& source) {
     diagFirst = true;
     out << "{\"messages\":[";
 
+    sq_resetanalyzerconfig();
+    // TODO: Also search for local configs
+
     // All diagnostics (parse errors + static analysis) come through this callback
     sq_setcompilerdiaghandler(vm, diagnosticHandler);
 

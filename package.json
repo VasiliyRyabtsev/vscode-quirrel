@@ -59,6 +59,13 @@
           },
           "default": null,
           "markdownDescription": "Custom color palette for semantic highlighting. If not set, colors are auto-generated based on the current theme (light/dark). Example: `[\"#529D52\", \"#BE7070\", \"#3D7676\", \"#BE9970\", \"#9D527C\"]`"
+        },
+        "quirrel.semanticHighlighting.saturation": {
+          "type": "number",
+          "default": 50,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Color saturation (0-100) semantic highlighting colors."
         }
       }
     },

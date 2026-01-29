@@ -19,10 +19,9 @@ const TT_IMPORT = 7;
 const DEFAULT_PALETTE_SIZE = 12;
 
 // Generate a color palette based on theme type
-function generatePalette(isDark: boolean, size: number): string[] {
+function generatePalette(isDark: boolean, size: number, saturation: number): string[] {
     const colors: string[] = [];
     // Use HSL with varying hue, fixed saturation and lightness appropriate for theme
-    const saturation = 65;
     const lightness = isDark ? 70 : 35;
 
     for (let i = 0; i < size; i++) {
@@ -128,7 +127,8 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
             // Auto-generate based on theme
             const themeKind = vs.window.activeColorTheme.kind;
             this._isDarkTheme = (themeKind === vs.ColorThemeKind.Dark || themeKind === vs.ColorThemeKind.HighContrast);
-            this._currentPalette = generatePalette(this._isDarkTheme, DEFAULT_PALETTE_SIZE);
+            const saturation = config.get<number>('saturation', 50);
+            this._currentPalette = generatePalette(this._isDarkTheme, DEFAULT_PALETTE_SIZE, saturation);
         }
     }
 

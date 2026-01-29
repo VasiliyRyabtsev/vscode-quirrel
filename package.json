@@ -2,7 +2,7 @@
   "name": "vscode-quirrel",
   "displayName": "Quirrel",
   "description": "Quirrel language support",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "publisher": "VasiliyRyabtsev",
   "icon": "acorn.png",
   "license": "MIT",
@@ -50,7 +50,7 @@
         "quirrel.semanticHighlighting.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable semantic highlighting for local identifiers (variables, parameters, functions, imports). Each unique identifier gets a consistent color."
+          "description": "Enable semantic highlighting for local identifiers (variables, parameters, functions, imports). Each unique identifier gets a consistent color, parameters can have their specific font styles"
         },
         "quirrel.semanticHighlighting.colors": {
           "type": "array",
@@ -66,6 +66,21 @@
           "minimum": 0,
           "maximum": 100,
           "description": "Color saturation (0-100) semantic highlighting colors."
+        },
+        "quirrel.semanticHighlighting.parameterStyle.bold": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display function parameters in bold."
+        },
+        "quirrel.semanticHighlighting.parameterStyle.italic": {
+          "type": "boolean",
+          "default": false,
+          "description": "Display function parameters in italic."
+        },
+        "quirrel.semanticHighlighting.parameterStyle.underline": {
+          "type": "boolean",
+          "default": false,
+          "description": "Display function parameters with underline."
         }
       }
     },

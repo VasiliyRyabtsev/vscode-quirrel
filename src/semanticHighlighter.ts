@@ -44,6 +44,12 @@ function hashString(str: string): number {
     return Math.abs(hash);
 }
 
+interface ParameterStyle {
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
+}
+
 export class QuirrelSemanticHighlighter implements vs.Disposable {
     private _decorationTypes: Map<number, vs.TextEditorDecorationType> = new Map();
     private _disposables: vs.Disposable[] = [];
@@ -51,6 +57,7 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
     private _currentPalette: string[] = [];
     private _isDarkTheme: boolean = true;
     private _enabled: boolean = true;
+    private _parameterStyle: ParameterStyle = { bold: true, italic: false, underline: false };
 
     constructor() {
         this._loadSettings();
@@ -114,6 +121,11 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
     private _loadSettings() {
         const config = vs.workspace.getConfiguration('quirrel.semanticHighlighting');
         this._enabled = config.get<boolean>('enabled', true);
+        this._parameterStyle = {
+            bold: config.get<boolean>('parameterStyle.bold', true),
+            italic: config.get<boolean>('parameterStyle.italic', false),
+            underline: config.get<boolean>('parameterStyle.underline', false),
+        };
     }
 
     private _updatePalette() {
@@ -138,6 +150,11 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
             dt.dispose();
         }
         this._decorationTypes.clear();
+
+        if (this._parameterStyleDecorationType) {
+            this._parameterStyleDecorationType.dispose();
+            this._parameterStyleDecorationType = null;
+        }
     }
 
     private _getDecorationTypeForColor(colorIndex: number): vs.TextEditorDecorationType {
@@ -152,6 +169,34 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
             this._decorationTypes.set(actualIndex, decorationType);
         }
         return this._decorationTypes.get(actualIndex)!;
+    }
+
+    private _parameterStyleDecorationType: vs.TextEditorDecorationType | null = null;
+
+    private _getParameterStyleDecorationType(): vs.TextEditorDecorationType | null {
+        const { bold, italic, underline } = this._parameterStyle;
+
+        // No styling if all options are disabled
+        if (!bold && !italic && !underline) {
+            return null;
+        }
+
+        if (!this._parameterStyleDecorationType) {
+            const options: vs.DecorationRenderOptions = {};
+
+            if (bold) {
+                options.fontWeight = 'bold';
+            }
+            if (italic) {
+                options.fontStyle = 'italic';
+            }
+            if (underline) {
+                options.textDecoration = 'underline';
+            }
+
+            this._parameterStyleDecorationType = vs.window.createTextEditorDecorationType(options);
+        }
+        return this._parameterStyleDecorationType;
     }
 
     dispose() {
@@ -188,6 +233,9 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
         for (const dt of this._decorationTypes.values()) {
             editor.setDecorations(dt, []);
         }
+        if (this._parameterStyleDecorationType) {
+            editor.setDecorations(this._parameterStyleDecorationType, []);
+        }
     }
 
     private _updateDecorations(editor: vs.TextEditor) {
@@ -208,6 +256,7 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
         // We need to get the actual identifier text from the document
         const paletteSize = this._currentPalette.length;
         const rangesByColorIndex: Map<number, vs.Range[]> = new Map();
+        const parameterRanges: vs.Range[] = [];
 
         if (result.tokens) {
             for (const token of result.tokens) {
@@ -228,20 +277,32 @@ export class QuirrelSemanticHighlighter implements vs.Disposable {
                 const identifierText = editor.document.getText(range);
                 const colorIndex = hashString(identifierText) % paletteSize;
 
+                // All tokens get color
                 if (!rangesByColorIndex.has(colorIndex)) {
                     rangesByColorIndex.set(colorIndex, []);
                 }
                 rangesByColorIndex.get(colorIndex)!.push(range);
+
+                // Parameters additionally get font style
+                if (token.type === TT_PARAMETER) {
+                    parameterRanges.push(range);
+                }
             }
         }
 
         // Clear all existing decorations first
         this._clearDecorations(editor);
 
-        // Apply decorations by color
+        // Apply color decorations to all tokens
         for (const [colorIndex, ranges] of rangesByColorIndex) {
             const decorationType = this._getDecorationTypeForColor(colorIndex);
             editor.setDecorations(decorationType, ranges);
+        }
+
+        // Apply font style decoration to parameters (layered on top of color)
+        const paramStyleDecor = this._getParameterStyleDecorationType();
+        if (paramStyleDecor && parameterRanges.length > 0) {
+            editor.setDecorations(paramStyleDecor, parameterRanges);
         }
     }
 }

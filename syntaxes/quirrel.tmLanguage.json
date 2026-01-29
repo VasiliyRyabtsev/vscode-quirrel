@@ -550,7 +550,7 @@
 
     "variable": {
       "begin": "(?=\\blocal\\b)",
-      "end": "(?=$)|(;)",
+      "end": "(?=$)|(?=[;\\}])",
       "endCaptures": { "1": { "name": "punctuation.terminator.quirrel" } },
       "patterns": [
         { "include": "#variable-name" },
@@ -584,7 +584,7 @@
     "variable-assign": {
       "begin": "=",
       "beginCaptures": { "0": { "name": "keyword.operator.assignment.quirrel" } },
-      "end": "(?=;|,)",
+      "end": "(?=$)|(?=[;,\\}])",
       "patterns": [
         { "include": "#block" },
         { "include": "#block-contents" }
@@ -593,7 +593,7 @@
 
     "variable-name-post": {
       "begin": "(?<=\\w)",
-      "end": "(?=;)|(?==)",
+      "end": "(?=$)|(?=[;\\}])",
       "patterns": [
         { "include": "#block-contents" }
       ]
@@ -601,7 +601,7 @@
 
     "let-binding": {
       "begin": "(?=\\blet\\b)",
-      "end": "(?=$)|(;)",
+      "end": "(?=$)|(?=[;\\}])",
       "endCaptures": { "1": { "name": "punctuation.terminator.quirrel" } },
       "patterns": [
         { "include": "#let-binding-name" },

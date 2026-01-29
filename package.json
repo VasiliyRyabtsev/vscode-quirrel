@@ -2,7 +2,7 @@
   "name": "vscode-quirrel",
   "displayName": "Quirrel",
   "description": "Quirrel language support",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "publisher": "VasiliyRyabtsev",
   "icon": "acorn.png",
   "license": "MIT",

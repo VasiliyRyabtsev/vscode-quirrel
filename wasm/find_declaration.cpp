@@ -84,7 +84,7 @@ class DeclarationFinder : public Visitor {
     }
 
     // Get name from class key expression
-    const char* getClassName(ClassDecl* cls) {
+    const char* getClassName(ClassExpr* cls) {
         if (cls->classKey() && cls->classKey()->op() == TO_ID) {
             return static_cast<Id*>(cls->classKey())->name();
         }
@@ -131,9 +131,8 @@ public:
                 break;
             }
 
-            case TO_FUNCTION:
-            case TO_CONSTRUCTOR: {
-                FunctionDecl* fn = static_cast<FunctionDecl*>(node);
+            case TO_FUNCTION: {
+                FunctionExpr* fn = static_cast<FunctionExpr*>(node);
                 const char* name = fn->name();
 
                 // Declare function in current scope (before entering its scope)
@@ -159,7 +158,7 @@ public:
             }
 
             case TO_CLASS: {
-                ClassDecl* cls = static_cast<ClassDecl*>(node);
+                ClassExpr* cls = static_cast<ClassExpr*>(node);
                 const char* name = getClassName(cls);
                 if (name) {
                     declareSymbol(name, cls, "class");
@@ -414,10 +413,13 @@ public:
                 break;
             }
 
-            case TO_DECL_EXPR: {
-                DeclExpr* declExpr = static_cast<DeclExpr*>(node);
-                if (declExpr->declaration()) {
-                    declExpr->declaration()->visit(this);
+            case TO_TABLE: {
+                TableExpr* tbl = static_cast<TableExpr*>(node);
+                for (const auto& member : tbl->members()) {
+                    if (found) break;
+                    if (member.value) {
+                        member.value->visit(this);
+                    }
                 }
                 break;
             }
@@ -487,7 +489,7 @@ public:
                 break;
             }
 
-            case TO_ARRAYEXPR: {
+            case TO_ARRAY: {
                 ArrayExpr* arr = static_cast<ArrayExpr*>(node);
                 for (Expr* e : arr->initializers()) {
                     if (found) break;
@@ -501,17 +503,6 @@ public:
                 for (Expr* e : comma->expressions()) {
                     if (found) break;
                     e->visit(this);
-                }
-                break;
-            }
-
-            case TO_TABLE: {
-                TableDecl* tbl = static_cast<TableDecl*>(node);
-                for (const auto& member : tbl->members()) {
-                    if (found) break;
-                    if (member.value) {
-                        member.value->visit(this);
-                    }
                 }
                 break;
             }

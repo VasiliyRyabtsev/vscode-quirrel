@@ -14,8 +14,8 @@ static std::string lastError;
 
 
 static void compileErrorHandler(HSQUIRRELVM /*v*/, SQMessageSeverity /*sev*/,
-    const SQChar* desc, const SQChar* /*source*/,
-    SQInteger line, SQInteger column, const SQChar* /*extra*/)
+    const char* desc, const char* /*source*/,
+    SQInteger line, SQInteger column, const char* /*extra*/)
 {
     std::ostringstream err;
     err << "Line " << line << ":" << column << ": " << desc;
@@ -63,7 +63,7 @@ class SymbolExtractor : public Visitor {
     }
 
     // Get name from class key expression
-    const char* getClassName(ClassDecl* cls) {
+    const char* getClassName(ClassExpr* cls) {
         if (cls->classKey() && cls->classKey()->op() == TO_ID) {
             return static_cast<Id*>(cls->classKey())->name();
         }
@@ -103,7 +103,7 @@ class SymbolExtractor : public Visitor {
     }
 
     // Visit a function/method body and emit children if any exist
-    void visitFunctionBody(FunctionDecl* fn) {
+    void visitFunctionBody(FunctionExpr* fn) {
         if (!fn->body()) return;
 
         std::string children = collectChildren(fn->body());
@@ -118,20 +118,12 @@ class SymbolExtractor : public Visitor {
         if (!memberName) return;
 
         Expr* val = member.value;
-        Decl* memberDecl = nullptr;
-        if (val->op() == TO_DECL_EXPR) {
-            memberDecl = static_cast<DeclExpr*>(val)->declaration();
-        }
 
-        if ((memberDecl && memberDecl->op() == TO_FUNCTION) || val->op() == TO_FUNCTION) {
-            FunctionDecl* method = memberDecl ? static_cast<FunctionDecl*>(memberDecl) : nullptr;
-            startSymbol(memberName, "Method", member.value);
-            if (method) visitFunctionBody(method);
-            endSymbol();
-        } else if ((memberDecl && memberDecl->op() == TO_CONSTRUCTOR) || val->op() == TO_CONSTRUCTOR) {
-            FunctionDecl* ctor = memberDecl ? static_cast<FunctionDecl*>(memberDecl) : nullptr;
-            startSymbol(memberName, "Constructor", member.value);
-            if (ctor) visitFunctionBody(ctor);
+        if (val->op() == TO_FUNCTION) {
+            FunctionExpr* method = static_cast<FunctionExpr*>(val);
+            bool isCtor = method->name() && strcmp(method->name(), "constructor") == 0;
+            startSymbol(memberName, isCtor ? "Constructor" : "Method", val);
+            visitFunctionBody(method);
             endSymbol();
         } else {
             startSymbol(memberName, member.isStatic() ? "Property" : "Field", member.key);
@@ -143,28 +135,10 @@ class SymbolExtractor : public Visitor {
     void emitInitializerChildren(Expr* init) {
         if (!init) return;
 
-        Decl* decl = nullptr;
-        if (init->op() == TO_DECL_EXPR) {
-            decl = static_cast<DeclExpr*>(init)->declaration();
-        }
-        if (!decl) return;
-
-        if (decl->op() == TO_TABLE) {
-            TableDecl* tbl = static_cast<TableDecl*>(decl);
+        if (init->op() == TO_TABLE || init->op() == TO_CLASS) {
+            TableExpr* tbl = static_cast<TableExpr*>(init);
             bool hasMembers = false;
             for (const auto& member : tbl->members()) {
-                if (!getMemberName(member.key)) continue;
-                if (!hasMembers) {
-                    startChildren();
-                    hasMembers = true;
-                }
-                emitTableMember(member);
-            }
-            if (hasMembers) endChildren();
-        } else if (decl->op() == TO_CLASS) {
-            ClassDecl* cls = static_cast<ClassDecl*>(decl);
-            bool hasMembers = false;
-            for (const auto& member : cls->members()) {
                 if (!getMemberName(member.key)) continue;
                 if (!hasMembers) {
                     startChildren();
@@ -179,9 +153,6 @@ class SymbolExtractor : public Visitor {
     // Get end node for initializer (for accurate symbol range)
     Node* getInitializerEnd(Expr* init, Node* fallback) {
         if (!init) return fallback;
-        if (init->op() == TO_DECL_EXPR) {
-            return static_cast<DeclExpr*>(init)->declaration();
-        }
         return init;
     }
 
@@ -202,23 +173,21 @@ public:
                 break;
             }
 
-            case TO_FUNCTION:
-            case TO_CONSTRUCTOR: {
-                FunctionDecl* fn = static_cast<FunctionDecl*>(node);
+            case TO_FUNCTION: {
+                FunctionExpr* fn = static_cast<FunctionExpr*>(node);
                 const char* name = fn->name();
 
                 // Skip anonymous lambdas - they add noise to the outline
                 if (!name || !*name) break;
 
-                const char* kind = (op == TO_CONSTRUCTOR) ? "Constructor" : "Function";
-                startSymbol(name, kind, fn);
+                startSymbol(name, "Function", fn);
                 visitFunctionBody(fn);
                 endSymbol();
                 break;
             }
 
             case TO_CLASS: {
-                ClassDecl* cls = static_cast<ClassDecl*>(node);
+                ClassExpr* cls = static_cast<ClassExpr*>(node);
                 startSymbol(getClassName(cls), "Class", cls);
 
                 // Emit class members as children

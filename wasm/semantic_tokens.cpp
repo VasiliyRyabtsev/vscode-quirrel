@@ -164,7 +164,7 @@ class SemanticTokenExtractor : public Visitor {
         return TT_VARIABLE;
     }
 
-    const char* getClassName(ClassDecl* cls) {
+    const char* getClassName(ClassExpr* cls) {
         if (cls->classKey() && cls->classKey()->op() == TO_ID) {
             return static_cast<Id*>(cls->classKey())->name();
         }
@@ -223,9 +223,8 @@ public:
                 break;
             }
 
-            case TO_FUNCTION:
-            case TO_CONSTRUCTOR: {
-                FunctionDecl* fn = static_cast<FunctionDecl*>(node);
+            case TO_FUNCTION: {
+                FunctionExpr* fn = static_cast<FunctionExpr*>(node);
                 const char* name = fn->name();
 
                 // Emit token for function name declaration
@@ -238,6 +237,21 @@ public:
 
                 // Add parameters - ParamDecl position is at the param name
                 for (ParamDecl* param : fn->parameters()) {
+                    if (DestructuringDecl* destruct = param->getDestructuring()) {
+                        // Destructured params have synthetic names like @arg1
+                        // Emit tokens for the actual bindings inside
+                        for (VarDecl* decl : destruct->declarations()) {
+                            const char* dname = decl->name();
+                            bool readonly = !decl->isAssignable();
+                            if (dname && *dname) {
+                                int mods = TM_DECLARATION | (readonly ? TM_READONLY : 0);
+                                addTokenForNamedDecl(decl, dname, TT_PARAMETER, mods);
+                                declareSymbol(dname, decl, "parameter", readonly);
+                            }
+                        }
+                        continue;
+                    }
+
                     const char* pname = param->name();
                     if (pname && *pname) {
                         int len = (int)strlen(pname);
@@ -255,7 +269,7 @@ public:
             }
 
             case TO_CLASS: {
-                ClassDecl* cls = static_cast<ClassDecl*>(node);
+                ClassExpr* cls = static_cast<ClassExpr*>(node);
                 const char* name = getClassName(cls);
 
                 if (name) {
@@ -547,13 +561,7 @@ public:
                 break;
             }
 
-            case TO_DECL_EXPR: {
-                DeclExpr* declExpr = static_cast<DeclExpr*>(node);
-                if (declExpr->declaration()) {
-                    declExpr->declaration()->visit(this);
-                }
-                break;
-            }
+            // TO_TABLE and TO_CLASS are handled as Expr nodes directly (no DeclExpr wrapper)
 
             case TO_CALL: {
                 CallExpr* call = static_cast<CallExpr*>(node);
@@ -634,7 +642,7 @@ public:
                 break;
             }
 
-            case TO_ARRAYEXPR: {
+            case TO_ARRAY: {
                 ArrayExpr* arr = static_cast<ArrayExpr*>(node);
                 for (Expr* e : arr->initializers()) {
                     e->visit(this);
@@ -651,7 +659,7 @@ public:
             }
 
             case TO_TABLE: {
-                TableDecl* tbl = static_cast<TableDecl*>(node);
+                TableExpr* tbl = static_cast<TableExpr*>(node);
                 for (const auto& member : tbl->members()) {
                     if (member.value) {
                         member.value->visit(this);

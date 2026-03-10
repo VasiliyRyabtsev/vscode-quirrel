@@ -30,6 +30,7 @@ target_include_directories(squirrel PUBLIC
 
 target_include_directories(quirrel-compiler PUBLIC
     "$<BUILD_INTERFACE:${QUIRREL_DIR}/include>"
+    "$<BUILD_INTERFACE:${QUIRREL_DIR}/internal>"
     "$<BUILD_INTERFACE:${QUIRREL_DIR}/squirrel>"
     "$<BUILD_INTERFACE:${QUIRREL_DIR}/squirrel/compiler>"
     "$<BUILD_INTERFACE:${QUIRREL_DIR}/helpers>"

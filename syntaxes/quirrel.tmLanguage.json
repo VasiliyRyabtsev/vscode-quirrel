@@ -515,28 +515,55 @@
       "begin": "(?<=\\(|,)",
       "end": "(?=\\)|,)",
       "patterns": [
+        { "include": "#parameter-element" }
+      ]
+    },
+
+    "parameter-element": {
+      "patterns": [
+        { "include": "#global" },
+        { "match": "\\.\\.\\.", "name": "keyword.operator.variadic.quirrel" },
+        { "include": "#parameter-destructuring-array" },
+        { "include": "#parameter-destructuring-table" },
         { "include": "#parameter-name" },
         { "include": "#type-annotation" },
-        { "include": "#parameter-assign" },
-        { "include": "#punctuation-comma" },
-        { "include": "#global" }
+        { "include": "#parameter-assign" }
+      ]
+    },
+
+    "parameter-destructuring-array": {
+      "begin": "\\[",
+      "beginCaptures": { "0": { "name": "punctuation.definition.parameters.array.begin.quirrel" } },
+      "end": "\\]",
+      "endCaptures": { "0": { "name": "punctuation.definition.parameters.array.end.quirrel" } },
+      "patterns": [
+        { "include": "#parameter-element" },
+        { "include": "#punctuation-comma" }
+      ]
+    },
+
+    "parameter-destructuring-table": {
+      "begin": "\\{",
+      "beginCaptures": { "0": { "name": "punctuation.definition.parameters.table.begin.quirrel" } },
+      "end": "\\}",
+      "endCaptures": { "0": { "name": "punctuation.definition.parameters.table.end.quirrel" } },
+      "patterns": [
+        { "include": "#parameter-element" },
+        { "include": "#punctuation-comma" }
       ]
     },
 
     "parameter-name": {
-      "begin": "(?<=\\(|,)",
-      "end": "([_a-zA-Z][\\w]*)",
-      "endCaptures": { "1": { "name": "variable.parameter.quirrel" } },
-      "patterns": [
-        { "include": "#global" },
-        { "include": "#operator-optional" }
-      ]
+      "match": "([_a-zA-Z][\\w]*)",
+      "captures": {
+        "1": { "name": "variable.parameter.quirrel" }
+      }
     },
 
     "parameter-assign": {
       "begin": "=",
       "beginCaptures": { "0": { "name": "keyword.operator.assignment.quirrel" } },
-      "end": "(?=\\)|,)",
+      "end": "(?=\\)|,|\\]|\\})",
       "patterns": [
         { "include": "#block" },
         { "include": "#block-contents" }

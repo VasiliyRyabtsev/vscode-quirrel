@@ -2,7 +2,7 @@
   "name": "vscode-quirrel",
   "displayName": "Quirrel",
   "description": "Quirrel language support",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "publisher": "VasiliyRyabtsev",
   "icon": "acorn.png",
   "license": "MIT",
@@ -21,9 +21,10 @@
   ],
   "main": "./out/extension.js",
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "node scripts/check-wasm.mjs && npm run compile",
     "compile": "npx tsc -p ./",
     "compile:wasm": "cd wasm && mkdir -p build && cd build && emcmake cmake .. && emmake make",
+    "postcompile:wasm": "node scripts/check-wasm.mjs --save",
     "lint": "tslint -p ./",
     "watch": "npx tsc -watch -p ./"
   },
@@ -36,7 +37,9 @@
   "devDependencies": {
     "@types/node": "^14.0.0",
     "@types/vscode": "^1.45.0",
-    "tslint": "^5.16.0"
+    "tslint": "^5.16.0",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
   },
   "contributes": {
     "configuration": {

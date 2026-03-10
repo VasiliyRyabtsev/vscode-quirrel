@@ -8,8 +8,11 @@ tslint.json
 package-lock.json
 *.md
 src/**
+scripts/**
 quirrel/**
 wasm/**
 out/wasm/**
 out/src/**
+out/.wasm-build-marker
+node_modules/**
 tmp/**

@@ -23,7 +23,7 @@
   "scripts": {
     "vscode:prepublish": "node scripts/check-wasm.mjs && npm run compile",
     "compile": "npx tsc -p ./",
-    "compile:wasm": "cd wasm && mkdir -p build && cd build && emcmake cmake .. && emmake make",
+    "compile:wasm": "node scripts/build-wasm.mjs",
     "postcompile:wasm": "node scripts/check-wasm.mjs --save",
     "lint": "tslint -p ./",
     "watch": "npx tsc -watch -p ./"

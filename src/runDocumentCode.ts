@@ -1,5 +1,5 @@
 import * as vs from 'vscode';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import syntaxDiags from './syntaxDiags';
 import { dbgOutputChannel } from './utils';
 
@@ -49,9 +49,8 @@ export default function runDocumentCode() {
   const config = vs.workspace.getConfiguration('quirrel.codeRunner');
   let toolPath: string = config.get('fileName') || '';
   toolPath = process.env[toolPath] || toolPath;
-  let cmd: string = `${toolPath} ${srcPath}`;
 
-  exec(cmd, (error, stdout, stderr) => {
+  execFile(toolPath, [srcPath], (error, stdout) => {
     if (error) {
       dbgOutputChannel.appendLine(stdout);
 

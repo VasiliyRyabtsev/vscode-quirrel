@@ -58,8 +58,8 @@ export async function activate(context: vs.ExtensionContext) {
     'quirrel.editor.action.checkSyntax', checkSyntaxCommand);
   context.subscriptions.push(commandCheckSyntax);
 
-  vs.workspace.onDidSaveTextDocument(checkSyntaxOnSave);
-  vs.workspace.onDidCloseTextDocument(clearDiagsOnClose);
+  context.subscriptions.push(vs.workspace.onDidSaveTextDocument(checkSyntaxOnSave));
+  context.subscriptions.push(vs.workspace.onDidCloseTextDocument(clearDiagsOnClose));
 }
 
 export function deactivate() {

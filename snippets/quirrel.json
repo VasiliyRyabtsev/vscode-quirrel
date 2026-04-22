@@ -85,7 +85,7 @@
 
   "class-extends": {
     "prefix": ["classex", "class extends"],
-    "body": "class ${1:ClassName} extends ${2:BaseClass} {\n\tconstructor(${3:args}) {\n\t\tbase.constructor(${4:baseArgs})\n\t\t${0}\n\t}\n}",
+    "body": "class ${1:ClassName}(${2:BaseClass}) {\n\tconstructor(${3:args}) {\n\t\tbase.constructor(${4:baseArgs})\n\t\t${0}\n\t}\n}",
     "description": "Class declaration with extends"
   },
 
@@ -117,12 +117,6 @@
     "prefix": "hotkeys",
     "body": "hotkeys = [[\"^J:${1:A}\", {description = loc(\"${2:text}\")}]]",
     "description": "hotkeys"
-  },
-
-  "viewConst": {
-    "prefix": "viewConst",
-    "body": "require(\"enlisted/enlist/viewConst.nut\")",
-    "description": "viewConst"
   },
 
   "computed": {
@@ -161,16 +155,16 @@
     "description": "rendObj"
   },
 
-  "robj_dtext": {
-    "prefix": "dtext",
-    "body": "ROBJ_DTEXT",
-    "description": "ROBJ_DTEXT"
+  "robj_text": {
+    "prefix": "text",
+    "body": "ROBJ_TEXT",
+    "description": "ROBJ_TEXT"
   },
 
-  "robj_stext": {
-    "prefix": "stext",
-    "body": "ROBJ_STEXT",
-    "description": "ROBJ_STEXT"
+  "robj_inscription": {
+    "prefix": "inscription",
+    "body": "ROBJ_INSCRIPTION",
+    "description": "ROBJ_INSCRIPTION"
   },
 
   "robj_box": {

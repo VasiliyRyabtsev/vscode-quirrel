@@ -37,16 +37,15 @@ class DeclarationFinder : public Visitor {
     Scope* currentScope;
     std::vector<Scope*> allScopes;  // For cleanup
 
-    // Check if position is within node bounds
-    bool containsPosition(Node* node) {
-        int ls = node->lineStart();
-        int le = node->lineEnd();
-        int cs = node->columnStart();
-        int ce = node->columnEnd();
+    bool isTargetOn(const Id* id) {
+        int ls = id->lineStart();
+        int le = id->lineEnd();
+        int cs = id->columnStart();
+        int ce = id->columnEnd();
 
         if (targetLine < ls || targetLine > le) return false;
         if (targetLine == ls && targetCol < cs) return false;
-        if (targetLine == le && targetCol >= ce) return false;
+        if (targetLine == le && targetCol > ce) return false; // include the word to the left of cursor
         return true;
     }
 
@@ -402,7 +401,7 @@ public:
             case TO_ID: {
                 Id* id = static_cast<Id*>(node);
                 // Check if this is the target identifier
-                if (containsPosition(id)) {
+                if (isTargetOn(id)) {
                     Symbol* sym = findSymbol(id->name());
                     if (sym) {
                         found = true;

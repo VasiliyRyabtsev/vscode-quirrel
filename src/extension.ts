@@ -2,7 +2,6 @@ import * as vs from 'vscode';
 
 import { SubstitutePathByFile } from './SubstitutePathByFile';
 import { SubstituteValueByKey } from './SubstituteValueByKey';
-import openFileByPath from './openFileByPath';
 import runDocumentCode from './runDocumentCode';
 import checkSyntaxOnSave, { checkSyntaxCommand } from './checkSyntaxOnSave';
 import clearDiagsOnClose from './clearDiagsOnClose';
@@ -45,10 +44,6 @@ export async function activate(context: vs.ExtensionContext) {
   const completeValue: vs.Disposable = vs.languages.registerCompletionItemProvider(
     DOCUMENT, new SubstituteValueByKey(), '=');
   context.subscriptions.push(completeValue);
-
-  const commandOpenByPath: vs.Disposable = vs.commands.registerCommand(
-    'quirrel.editor.action.openModule', openFileByPath);
-  context.subscriptions.push(commandOpenByPath);
 
   const commandRunDocumentCode: vs.Disposable = vs.commands.registerCommand(
     'quirrel.editor.action.runCode', runDocumentCode);

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 project(quirrel-vscode VERSION 1.0 LANGUAGES C CXX)
 
 # Use CMAKE_CURRENT_SOURCE_DIR for reliable path resolution

@@ -430,7 +430,7 @@ public:
 
                 if (loop->idx()) {
                     const char* name = loop->idx()->name();
-                    if (name && *name) {
+                    if (name && *name && name[0] != '@') {
                         // foreach loop vars - search for name in source
                         addTokenForNamedDecl(loop, name, TT_VARIABLE, TM_DECLARATION);
                         declareSymbol(name, loop->idx(), "variable", false);
@@ -438,7 +438,10 @@ public:
                 }
                 if (loop->val()) {
                     const char* name = loop->val()->name();
-                    if (name && *name) {
+                    // Skip synthetic surrogates (e.g. "@FE_VAL0") used by the parser
+                    // when the val position is a destructuring pattern; the real
+                    // bindings are emitted when the wrapped DestructuringDecl is visited.
+                    if (name && *name && name[0] != '@') {
                         addTokenForNamedDecl(loop, name, TT_VARIABLE, TM_DECLARATION);
                         declareSymbol(name, loop->val(), "variable", false);
                     }

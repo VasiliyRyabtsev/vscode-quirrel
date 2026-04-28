@@ -700,6 +700,7 @@
           "end": "(\\))",
           "endCaptures": { "1": { "name": "meta.brace.round.quirrel" } },
           "patterns": [
+            { "include": "#foreach-vars" },
             {
               "match": "\\b(in)\\b",
               "name": "keyword.other.in.quirrel"
@@ -708,6 +709,15 @@
             { "include": "#block-contents" }
           ]
         }
+      ]
+    },
+
+    "foreach-vars": {
+      "begin": "(?<=\\(|,)\\s*(?=[\\[\\{])",
+      "end": "(?<=[\\]\\}])",
+      "patterns": [
+        { "include": "#parameter-destructuring-array" },
+        { "include": "#parameter-destructuring-table" }
       ]
     },
 

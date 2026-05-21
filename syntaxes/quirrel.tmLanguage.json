@@ -666,7 +666,7 @@
           "name": "storage.type.class.quirrel"
         },
         {
-          "match": "\\b(local|static|const|let)\\b",
+          "match": "\\b(local|static|const|let|async)\\b",
           "name": "storage.modifier.quirrel"
         },
         {
@@ -770,7 +770,7 @@
           ]
         },
         {
-          "match": "\\b(if|else|while|do|switch|case|break|for|foreach|return|yield|continue|resume|default)\\b",
+          "match": "\\b(if|else|while|do|switch|case|break|for|foreach|return|yield|await|continue|resume|default)\\b",
           "name": "keyword.control.flow-control.quirrel"
         },
         {

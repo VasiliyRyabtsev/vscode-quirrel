@@ -490,23 +490,36 @@ public:
                     tryStmt->tryStatement()->visit(this);
                 }
 
-                pushScope();
-
-                if (tryStmt->exceptionId()) {
-                    const char* name = tryStmt->exceptionId()->name();
-                    if (name && *name) {
-                        // Exception var - the Id node should have correct position
-                        int len = (int)strlen(name);
-                        addTokenForNode(tryStmt->exceptionId(), len, TT_VARIABLE, TM_DECLARATION);
-                        declareSymbol(name, tryStmt->exceptionId(), "exception", false);
+                // Each catch clause has its own scope: the exception binding is
+                // only visible inside that clause's body. A clause may be typed
+                // (catch (ApiError e)) or a catch-all (catch (e), type == null).
+                for (const CatchClause& clause : tryStmt->catches()) {
+                    // Resolve the type name in the enclosing scope (before the
+                    // exception binding is declared). If it's a known class it
+                    // gets a class token; otherwise it falls back to the
+                    // TextMate grammar's class styling.
+                    if (clause.type) {
+                        clause.type->visit(this);
                     }
-                }
 
-                if (tryStmt->catchStatement()) {
-                    tryStmt->catchStatement()->visit(this);
-                }
+                    pushScope();
 
-                popScope();
+                    if (clause.exception) {
+                        const char* name = clause.exception->name();
+                        if (name && *name) {
+                            // Exception var - the Id node should have correct position
+                            int len = (int)strlen(name);
+                            addTokenForNode(clause.exception, len, TT_VARIABLE, TM_DECLARATION);
+                            declareSymbol(name, clause.exception, "exception", false);
+                        }
+                    }
+
+                    if (clause.body) {
+                        clause.body->visit(this);
+                    }
+
+                    popScope();
+                }
                 break;
             }
 

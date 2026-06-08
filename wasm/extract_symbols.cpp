@@ -287,7 +287,9 @@ public:
             case TO_TRY: {
                 TryStatement* tryStmt = static_cast<TryStatement*>(node);
                 if (tryStmt->tryStatement()) tryStmt->tryStatement()->visit(this);
-                if (tryStmt->catchStatement()) tryStmt->catchStatement()->visit(this);
+                for (const CatchClause& clause : tryStmt->catches()) {
+                    if (clause.body) clause.body->visit(this);
+                }
                 break;
             }
 

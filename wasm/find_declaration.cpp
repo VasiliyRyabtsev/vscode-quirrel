@@ -335,18 +335,28 @@ public:
                     tryStmt->tryStatement()->visit(this);
                 }
 
-                // Create scope for catch block
-                pushScope();
+                // Each catch clause gets its own scope: the exception binding is
+                // only visible inside that clause's body. A clause may be typed
+                // (catch (ApiError e)) or a catch-all (catch (e), type == null).
+                for (const CatchClause& clause : tryStmt->catches()) {
+                    // Resolve the type name in the enclosing scope so F12 on it
+                    // jumps to the class declaration.
+                    if (clause.type) {
+                        clause.type->visit(this);
+                    }
 
-                if (tryStmt->exceptionId()) {
-                    declareSymbol(tryStmt->exceptionId()->name(), tryStmt->exceptionId(), "exception");
+                    pushScope();
+
+                    if (clause.exception) {
+                        declareSymbol(clause.exception->name(), clause.exception, "exception");
+                    }
+
+                    if (clause.body) {
+                        clause.body->visit(this);
+                    }
+
+                    popScope();
                 }
-
-                if (tryStmt->catchStatement()) {
-                    tryStmt->catchStatement()->visit(this);
-                }
-
-                popScope();
                 break;
             }
 

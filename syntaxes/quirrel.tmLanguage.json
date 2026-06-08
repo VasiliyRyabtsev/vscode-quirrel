@@ -738,6 +738,13 @@
           "end": "\\)",
           "endCaptures": { "0": { "name": "meta.brace.round.quirrel" } },
           "patterns": [
+            {
+              "match": "([A-Za-z_]\\w*)\\s+([A-Za-z_]\\w*)",
+              "captures": {
+                "1": { "name": "entity.name.type.class.quirrel" },
+                "2": { "name": "variable.parameter.quirrel" }
+              }
+            },
             { "include": "#block-contents" }
           ]
         },
